@@ -1,12 +1,13 @@
-import { WebSocketServer } from 'ws';
+import { WebSocketServer } from "ws";
 
-const PORT = 6969;
-const wss = new WebSocketServer({port : PORT});
+const wss = new WebSocketServer({ port: 6969 });
 
 wss.on("connection", (socket) => {
-    socket.send("Server Connected")
-})
+  console.log("Client connected");
 
-wss.on("message", (socket) => {
-    socket.send()
-})
+  socket.on("message", (message) => {
+    console.log("Received from client:", message.toString());
+
+    socket.send(message.toString());
+  });
+});
