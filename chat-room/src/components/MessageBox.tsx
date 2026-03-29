@@ -16,7 +16,7 @@ export const MessageBox = () => {
 
     socket.send(message);
 
-    inputMessage.current.value = ""; // clear input
+    inputMessage.current.value = "";
   }
 
   useEffect(() => {
