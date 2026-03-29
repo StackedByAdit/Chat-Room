@@ -7,6 +7,7 @@ wss.on("connection", (socket) => {
 
   socket.on("message", (message) => {
     console.log("Received from client:", message.toString());
+    console.log("test");
 
     socket.send(message.toString());
   });
