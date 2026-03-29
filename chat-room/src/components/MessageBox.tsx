@@ -9,12 +9,14 @@ export const MessageBox = () => {
     if (!inputMessage.current || !socket) return;
 
     const message = inputMessage.current.value;
-
     if (!message.trim()) return;
 
-    console.log(message);
-
-    socket.send(message);
+    socket.send(JSON.stringify({
+      type: "chat",
+      payload: {
+        message: message
+      }
+    }));
 
     inputMessage.current.value = "";
   }
@@ -25,6 +27,14 @@ export const MessageBox = () => {
 
     socketInstance.onopen = () => {
       console.log("Connected");
+
+      // 🔥 JOIN ROOM (IMPORTANT)
+      socketInstance.send(JSON.stringify({
+        type: "join",
+        payload: {
+          roomId: "room1" // you can change later
+        }
+      }));
     };
 
     socketInstance.onclose = () => {
