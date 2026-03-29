@@ -11,7 +11,6 @@ export const MessageBox = ({ addMessage }: any) => {
     const message = inputMessage.current.value;
     if (!message.trim()) return;
 
-    // ✅ add locally (RIGHT SIDE)
     addMessage({
       text: message,
       isMine: true

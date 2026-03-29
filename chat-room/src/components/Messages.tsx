@@ -1,13 +1,9 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { getSocket } from './Socket';
 
-interface Message {
-    text: string;
-    isMine: boolean;
-}
+const Messages = ({ messages, setMessages }: any) => {
 
-const Messages = () => {
-    const [messages, setMessages] = useState<Message[]>([]);
+    const bottomRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
         const socket = getSocket();
@@ -15,24 +11,38 @@ const Messages = () => {
         socket.onmessage = (e) => {
             const incoming = e.data;
 
-            setMessages(prev => [
-                ...prev,
-                { text: incoming, isMine: false }
-            ]);
+            setMessages((prev: any[]) => {
+
+                if (
+                    prev.length > 0 &&
+                    prev[prev.length - 1].text === incoming &&
+                    prev[prev.length - 1].isMine
+                ) {
+                    return prev;
+                }
+
+                return [...prev, { text: incoming, isMine: false }];
+            });
         };
 
     }, []);
 
+    useEffect(() => {
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [messages]);
+
     return (
-        <div style={{
-            height: "65%",
-            padding: 10,
-            display: "flex",
-            flexDirection: "column",
-            gap: 8,
-            overflowY: "auto"
-        }}>
-            {messages.map((msg, index) => (
+        <div
+            style={{
+                height: "85%",
+                display: "flex",
+                flexDirection: "column",
+                gap: 8,
+                overflowY: "auto",
+                padding: 10
+            }}
+        >
+            {messages.map((msg: any, index: number) => (
                 <div
                     key={index}
                     style={{
@@ -48,6 +58,8 @@ const Messages = () => {
                     {msg.text}
                 </div>
             ))}
+
+            <div ref={bottomRef} />
         </div>
     )
 }
