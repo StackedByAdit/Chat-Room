@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { getSocket } from './Socket';
 
-export const MessageBox = () => {
+export const MessageBox = ({ addMessage }: any) => {
   const inputMessage = useRef<HTMLInputElement | null>(null);
   const [socket, setSocket] = useState<WebSocket | null>(null);
 
@@ -10,6 +10,12 @@ export const MessageBox = () => {
 
     const message = inputMessage.current.value;
     if (!message.trim()) return;
+
+    // ✅ add locally (RIGHT SIDE)
+    addMessage({
+      text: message,
+      isMine: true
+    });
 
     socket.send(JSON.stringify({
       type: "chat",
@@ -26,19 +32,12 @@ export const MessageBox = () => {
     setSocket(socketInstance);
 
     socketInstance.onopen = () => {
-      console.log("Connected");
-
-      // 🔥 JOIN ROOM (IMPORTANT)
       socketInstance.send(JSON.stringify({
         type: "join",
         payload: {
-          roomId: "room1" // you can change later
+          roomId: "room1"
         }
       }));
-    };
-
-    socketInstance.onclose = () => {
-      console.log("Disconnected");
     };
 
   }, []);
@@ -51,22 +50,13 @@ export const MessageBox = () => {
           style={{
             padding: 10,
             borderRadius: 15,
-            boxShadow: '2px 2px 5px red, -2px -2px 5px blue',
             width: "90%"
           }}
           type='text'
           placeholder='say Hello'
         />
 
-        <button
-          onClick={handleInput}
-          style={{
-            padding: 1,
-            borderRadius: 15,
-            boxShadow: '2px 2px 5px red, -2px -2px 5px blue',
-            width: "10%"
-          }}
-        >
+        <button onClick={handleInput} style={{ width: "10%" }}>
           Send
         </button>
       </div>
