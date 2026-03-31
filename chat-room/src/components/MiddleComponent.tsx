@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import MessageBox from './MessageBox'
 import Messages from './Messages'
-import { getSocket } from './Socket'
+import { getSocket } from '../sockets/Socket'
 
 export const MiddleComponent = () => {
 

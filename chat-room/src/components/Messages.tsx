@@ -1,58 +1,67 @@
-import React, { useEffect, useRef } from 'react';
-import { getSocket } from './Socket';
+import React, { useEffect, useRef } from 'react'
+import { getSocket } from '../sockets/Socket';
 
-type Message = {
-  text: string;
-  isMine: boolean;
-};
+const Messages = ({ messages, setMessages }: any) => {
 
-const Messages = ({ messages, setMessages }: {
-  messages: Message[];
-  setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
-}) => {
+    const bottomRef = useRef<HTMLDivElement | null>(null);
 
-  const bottomRef = useRef<HTMLDivElement | null>(null);
+    useEffect(() => {
+        const socket = getSocket();
 
-  useEffect(() => {
-    const socket = getSocket();
+        socket.onmessage = (e) => {
+            const incoming = e.data;
 
-    socket.onmessage = (e) => {
-      setMessages(prev => [
-        ...prev,
-        { text: e.data, isMine: false }
-      ]);
-    };
-  }, [setMessages]);
+            setMessages((prev: any[]) => {
 
-  useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+                if (
+                    prev.length > 0 &&
+                    prev[prev.length - 1].text === incoming &&
+                    prev[prev.length - 1].isMine
+                ) {
+                    return prev;
+                }
 
-  return (
-    <div style={{
-      height: "85%",
-      display: "flex",
-      flexDirection: "column",
-      gap: 8,
-      overflowY: "auto",
-      padding: 10
-    }}>
-      {messages.map((msg, i) => (
-        <div key={i} style={{
-          alignSelf: msg.isMine ? "flex-end" : "flex-start",
-          background: msg.isMine ? "#4f93ff" : "#e5e5ea",
-          color: msg.isMine ? "white" : "black",
-          padding: "8px 12px",
-          borderRadius: 12,
-          maxWidth: "60%",
-          wordBreak: "break-word"
-        }}>
-          {msg.text}
+                return [...prev, { text: incoming, isMine: false }];
+            });
+        };
+
+    }, []);
+
+    useEffect(() => {
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [messages]);
+
+    return (
+        <div
+            style={{
+                height: "85%",
+                display: "flex",
+                flexDirection: "column",
+                gap: 8,
+                overflowY: "auto",
+                padding: 10
+            }}
+        >
+            {messages.map((msg: any, index: number) => (
+                <div
+                    key={index}
+                    style={{
+                        alignSelf: msg.isMine ? "flex-end" : "flex-start",
+                        backgroundColor: msg.isMine ? "#4f93ff" : "#e5e5ea",
+                        color: msg.isMine ? "white" : "black",
+                        padding: "8px 12px",
+                        borderRadius: 12,
+                        maxWidth: "60%",
+                        wordBreak: "break-word"
+                    }}
+                >
+                    {msg.text}
+                </div>
+            ))}
+
+            <div ref={bottomRef} />
         </div>
-      ))}
-      <div ref={bottomRef} />
-    </div>
-  );
-};
+    )
+}
 
-export default Messages;
+export default Messages

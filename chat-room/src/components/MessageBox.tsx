@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { getSocket } from './Socket';
+import { getSocket } from '../sockets/Socket';
 
 export const MessageBox = ({ addMessage }: any) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -20,8 +20,10 @@ export const MessageBox = ({ addMessage }: any) => {
     const text = inputRef.current.value.trim();
     if (!text) return;
 
+    // update UI instantly
     addMessage({ text, isMine: true });
 
+    // send to backend
     socket.send(JSON.stringify({
       type: "chat",
       payload: { message: text }
