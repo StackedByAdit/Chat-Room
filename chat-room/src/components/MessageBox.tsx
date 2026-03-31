@@ -1,29 +1,22 @@
-import React, { useEffect, useRef } from 'react';
-import { getSocket } from '../sockets/Socket';
+import React, { useRef } from 'react';
+import type { Message } from '../types';
 
-export const MessageBox = ({ addMessage }: any) => {
+type Props = {
+  socket: WebSocket | null;
+  addMessage: (msg: Message) => void;
+};
+
+const MessageBox = ({ socket, addMessage }: Props) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const socket = getSocket();
-
-  useEffect(() => {
-    socket.onopen = () => {
-      socket.send(JSON.stringify({
-        type: "join",
-        payload: { roomId: "room1" }
-      }));
-    };
-  }, [socket]);
 
   const sendMessage = () => {
-    if (!inputRef.current) return;
+    if (!inputRef.current || !socket) return;
 
     const text = inputRef.current.value.trim();
     if (!text) return;
 
-    // update UI instantly
     addMessage({ text, isMine: true });
 
-    // send to backend
     socket.send(JSON.stringify({
       type: "chat",
       payload: { message: text }
@@ -45,3 +38,5 @@ export const MessageBox = ({ addMessage }: any) => {
     </div>
   );
 };
+
+export default MessageBox;
