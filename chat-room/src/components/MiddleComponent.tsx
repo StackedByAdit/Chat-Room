@@ -1,27 +1,31 @@
 import React, { useEffect, useState } from 'react';
+import MessageBox from './MessageBox';
 import Messages from './Messages';
 import type { Message } from '../types';
 import { createSocket } from '../sockets/Socket';
-import { MessageBox } from './MessageBox';
 
 export const MiddleComponent = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [roomId, setRoomId] = useState("");
   const [joined, setJoined] = useState(false);
   const [socket, setSocket] = useState<WebSocket | null>(null);
+  const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
     const ws = createSocket();
     setSocket(ws);
 
-    ws.onmessage = (e) => {
-      const incoming = e.data;
+    ws.addEventListener("open", () => {
+      console.log("CONNECTED");
+      setIsConnected(true);
+    });
 
-      setMessages((prev) => [
+    ws.addEventListener("message", (e) => {
+      setMessages(prev => [
         ...prev,
-        { text: incoming, isMine: false }
+        { text: e.data, isMine: false }
       ]);
-    };
+    });
 
     return () => {
       ws.close();
@@ -30,6 +34,11 @@ export const MiddleComponent = () => {
 
   function joinRoom() {
     if (!roomId.trim() || !socket) return;
+
+    if (socket.readyState !== WebSocket.OPEN) {
+      console.log("Socket not ready");
+      return;
+    }
 
     socket.send(JSON.stringify({
       type: "join",
@@ -53,8 +62,16 @@ export const MiddleComponent = () => {
             placeholder="Enter room code"
             style={styles.input}
           />
-          <button onClick={joinRoom} style={styles.button}>
-            Join
+          <button
+            onClick={joinRoom}
+            disabled={!isConnected}
+            style={{
+              ...styles.button,
+              opacity: isConnected ? 1 : 0.5,
+              cursor: isConnected ? "pointer" : "not-allowed"
+            }}
+          >
+            {isConnected ? "Join" : "Connecting..."}
           </button>
         </div>
       </div>
@@ -99,8 +116,7 @@ const styles = {
     borderRadius: 8,
     border: "none",
     background: "#4f93ff",
-    color: "white",
-    cursor: "pointer"
+    color: "white"
   },
   chatContainer: {
     height: "100vh",

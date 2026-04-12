@@ -19,7 +19,7 @@ const Messages = ({ messages }: Props) => {
           key={index}
           style={{
             alignSelf: msg.isMine ? "flex-end" : "flex-start",
-            backgroundColor: msg.isMine ? "#4f93ff" : "#e5e5ea",
+            backgroundColor: msg.isMine ? "#547fc4" : "#d7d7e6",
             color: msg.isMine ? "white" : "black",
             padding: "8px 12px",
             borderRadius: 12,
@@ -42,7 +42,7 @@ const styles = {
     height: "85%",
     display: "flex",
     flexDirection: "column",
-    gap: 8,
+    gap: 7,
     overflowY: "auto",
     padding: 10
   }
