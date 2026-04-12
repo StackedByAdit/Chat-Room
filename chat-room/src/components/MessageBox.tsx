@@ -26,11 +26,11 @@ const MessageBox = ({ socket, addMessage }: Props) => {
   };
 
   return (
-    <div style={{ display: 'flex', gap: 10 }}>
+    <div style={{ display: 'flex', gap: 12, padding: 10 }}>
       <input
         ref={inputRef}
         style={{ padding: 10, borderRadius: 15, width: "90%" }}
-        placeholder="Say hello..."
+        placeholder="Say hello to Strangers..."
       />
       <button onClick={sendMessage} style={{ width: "10%" }}>
         Send
