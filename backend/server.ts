@@ -1,41 +1,54 @@
 import { WebSocketServer, WebSocket } from "ws";
 
-const wss = new WebSocketServer({port : 6969});
+const wss = new WebSocketServer({ port: 6969 });
 
-interface User{
-    socket: WebSocket;
-    room: string
+interface User {
+  socket: WebSocket;
+  room: string;
 }
 
-let allSockets : User[] = [];
+let allSockets: User[] = [];
 
 wss.on("connection", (socket) => {
-    
-    socket.on("message", (message : string) => {
-    
-        const parsedMessage = JSON.parse(message);
 
-        if(parsedMessage.type === "join"){
-           
-            allSockets.push({
-                socket,
-                room : parsedMessage.payload.roomId
-            })
-        }
+  socket.on("message", (message) => {
+    const parsedMessage = JSON.parse(message.toString());
 
-        if (parsedMessage.type  === "chat"){
-        
-            let currentUserRoom = null;
-            for(let i =0; i<allSockets.length; i++){
-                if(allSockets[i].socket === socket){
-                    currentUserRoom = allSockets[i].room
-                }
-            }
-            for(let i =0; i<allSockets.length; i++){
-                if(allSockets[i].room === currentUserRoom){
-                    allSockets[i].socket.send(parsedMessage.payload.message)
-                }
-            }
+    if (parsedMessage.type === "join") {
+      const roomId = parsedMessage.payload.roomId;
+
+      allSockets = allSockets.filter(user => user.socket !== socket);
+
+      allSockets.push({
+        socket,
+        room: roomId
+      });
+
+      console.log("User joined room:", roomId);
+    }
+
+    if (parsedMessage.type === "chat") {
+
+      const sender = allSockets.find(user => user.socket === socket);
+      if (!sender) return;
+
+      const messageText = parsedMessage.payload.message;
+
+      console.log("Broadcasting:", messageText);
+
+      allSockets.forEach(user => {
+        if (
+          user.room === sender.room &&
+          user.socket.readyState === WebSocket.OPEN
+        ) {
+          user.socket.send(messageText);
         }
-    })
-})
+      });
+    }
+  });
+
+  socket.on("close", () => {
+    allSockets = allSockets.filter(user => user.socket !== socket);
+    console.log("User disconnected");
+  });
+});
