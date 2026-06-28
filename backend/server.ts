@@ -13,6 +13,7 @@ wss.on("connection", (socket) => {
 
   socket.on("message", (message) => {
     const parsedMessage = JSON.parse(message.toString());
+    console.log(parsedMessage);
 
     if (parsedMessage.type === "join") {
       const roomId = parsedMessage.payload.roomId;

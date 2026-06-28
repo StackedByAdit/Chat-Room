@@ -1,5 +1,3 @@
-import React from 'react'
-
 import MiddleComponent from './components/MiddleComponent'
 import LeftMargin from './components/LeftMargin'
 import RightMargin from './components/RIghtMargin'
